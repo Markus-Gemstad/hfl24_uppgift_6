@@ -126,8 +126,9 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
         // ),
         ElevatedButton(
           onPressed: () {
-            context.read<ActiveParkingBloc>().add(
-                ActiveParkingExtend(ongoingParking, Duration(minutes: 15)));
+            context
+                .read<ActiveParkingBloc>()
+                .add(ActiveParkingExtend(ongoingParking, Duration(minutes: 1)));
 
             // Cancel the old notification
             context
@@ -143,7 +144,7 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
                 deliveryTime:
                     ongoingParking.endTime.subtract(Duration(seconds: 10))));
           },
-          child: Text('Förläng sluttid med 15 minuter'),
+          child: Text('Förläng sluttid med 1 minuter'),
         ),
         SizedBox(height: 20.0),
         ElevatedButton(

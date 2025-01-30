@@ -6,39 +6,52 @@ En parkeringsapp som lagrar sitt data i Firebase Cloud Storage med tillhörande 
 
 1. Ladda ner hela repot (https://github.com/Markus-Gemstad/hfl24_uppgift_5)
 2. Öppna mappen i Visual Studio Code
-5. parkmycar_user (användarappen): Kör i webb (Chrome)
-6. parkmycar_admin (adminappen): Kör i webb (Chrome)
+5. parkmycar_user (användarappen): Kör på iOS eller Android
+6. parkmycar_admin (adminappen): Kör på iOS eller Android
 
-## Funktioner
+## Generell funktionalitet
 ### parkmycar_user
 
-- Registrering av nya användare (namn och e-post)
-- In-/utloggning (med e-post endast)
-- Inloggning med Google-konto
+- Registrering av nya användare
+- In-/utloggning (med e-post/lösenord eller Google)
 - Lägga till fordon
 - Ta bort fordon
 - Lista egna fordon
 - Visa lediga parkeringsplatser
 - Starta parkering
+- Förlänga parkeringstid
+- Notifikation när parkeringstid håller på att gå ut
 - Avsluta parkering
 - Visa parkeringshistorik
-- Redigera användare (endast namn och lösenord, e-post är låst)
+- Redigera användare
 - Byta mellan mörkt, ljust eller automatiskt (system) tema
 
 ### parkmycar_admin
 
+- Registrering av nya användare
+- In-/utloggning (med e-post/lösenord eller Google)
 - Responsiv design/layout (för menyer)
 - Lägga till nya parkeringsplatser
 - Ta bort parkeringsplatser
 - Visa alla parkeringsplatser
 - Visa aktiva parkeringar
 - Summerad inkomst från parkeringar
-- Populäraste parkeringsplatserna (top 10)
-- Redigera användare (endast namn, e-post är låst)
+- Populäraste parkeringsplatserna (topp 10)
+- Redigera användare
 - Byta mellan mörkt, ljust eller automatiskt (system) tema
 
-## Uppgift 5
+## Uppgift 6
+### Nyheter
 
+- Notifikation/påminnelse strax innan parkeringstid går ut (iOS och Android)
+- Knapp för att förlänga parkeringstid på skärmen pågående parkering
+- Rödmarkering på skärmen pågående parkering när en parkeringstid har gått ut
+
+### Funktioner för VG
+
+- Notifkation fungerar på både iOS och Android
+
+## Uppgift 5
 ### Nyheter
 
 - Lagring har bytts ut till Google Firebase Cloud Firestore
@@ -58,7 +71,6 @@ En parkeringsapp som lagrar sitt data i Firebase Cloud Storage med tillhörande 
 - Google-inloggningen startar inte via event i AuthBloc samt saknar felhantering
 
 ## Uppgift 4
-
 ### Nyheter
 
 - ParkMyCar user: Blocs för "active parking", Parkings, ParkingSpaces och Vehicles
@@ -83,7 +95,6 @@ En parkeringsapp som lagrar sitt data i Firebase Cloud Storage med tillhörande 
 - Inte grundligt undersökt om stateful-widgets kan bytas ut mot stateless hela vägen där nu Blocs används
 
 ## Uppgift 3
-
 ### Funktioner för VG
 
 - Sökfunktioner för parkeringsplatser
