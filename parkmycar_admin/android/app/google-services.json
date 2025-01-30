@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "605265536284",
+    "project_id": "parkmycar-77337",
+    "storage_bucket": "parkmycar-77337.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605265536284:android:d293e4b6a08528019d86d9",
+        "android_client_info": {
+          "package_name": "com.example.parkmycar_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "605265536284-8996rp842123c3d3ejlpd7fkth5sh2d3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuNQoxRdS6vjYnifYSBd1kDUdoHApYrf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "605265536284-8996rp842123c3d3ejlpd7fkth5sh2d3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "605265536284-dje8vtkifmsl6h38jf7hhbqrmkh8ltai.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.parkmycarUser"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605265536284:android:307d28e538e7b1d59d86d9",
+        "android_client_info": {
+          "package_name": "com.example.parkmycar_user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "605265536284-8996rp842123c3d3ejlpd7fkth5sh2d3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuNQoxRdS6vjYnifYSBd1kDUdoHApYrf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "605265536284-8996rp842123c3d3ejlpd7fkth5sh2d3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "605265536284-dje8vtkifmsl6h38jf7hhbqrmkh8ltai.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.parkmycarUser"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
