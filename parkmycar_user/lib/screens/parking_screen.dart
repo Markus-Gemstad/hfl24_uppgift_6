@@ -129,6 +129,7 @@ class ParkingScreen extends StatelessWidget {
 
       // Schedule a notification reminding the user of the parking end time
       context.read<NotificationBloc>().add(ScheduleNotification(
+          id: parking.id,
           title: "Din parkeringstid går snart ut!",
           content:
               "Parkeringstiden på ${parking.parkingSpace!.streetAddress} går ut om 40 sekunder.",

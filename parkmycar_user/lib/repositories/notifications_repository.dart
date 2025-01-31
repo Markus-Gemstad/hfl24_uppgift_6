@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,11 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import '../firebase_options.dart';
 
 const String extendParkingAction = 'extend_parking';
+
+/// Streams are created so that app can respond to notification-related events
+/// since the plugin is initialized in the `main` function
+// final StreamController<NotificationResponse> selectNotificationStream =
+//     StreamController<NotificationResponse>.broadcast();
 
 // Called when a user clicka a notification action
 @pragma('vm:entry-point')
@@ -104,10 +110,11 @@ Future<FlutterLocalNotificationsPlugin> initializeNotifications() async {
 
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
-    onDidReceiveNotificationResponse:
-        (NotificationResponse notificationResponse) async {
-      // Called when the user taps on a notification
-      debugPrint('onDidReceiveNotificationResponse');
+    // onDidReceiveNotificationResponse: selectNotificationStream.add,
+    onDidReceiveNotificationResponse: (details) {
+      debugPrint('onDidReceiveNotificationResponse(): \n'
+          'id: ${details.id}\n'
+          'payload: ${details.payload}');
     },
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
@@ -138,7 +145,7 @@ class NotificationsRepository {
 
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
 
-  Future<void> cancelScheduledNotificaion(int id) async {
+  Future<void> cancelScheduledNotification(int id) async {
     await _flutterLocalNotificationsPlugin.cancel(id);
   }
 

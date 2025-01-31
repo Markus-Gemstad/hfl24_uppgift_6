@@ -17,14 +17,14 @@ class NotificationBloc
     on<NotificationEvent>((event, emit) async {
       switch (event) {
         case ScheduleNotification(
-            //:final id,
+            :final id,
             :final title,
             :final content,
             :final deliveryTime,
             :final payload
           ):
           await _onScheduleNotification(
-              deliveryTime, title, content, payload, emit);
+              deliveryTime, title, content, id, payload, emit);
 
         case CancelNotification(:final id):
           await _onCancelNotification(id, emit);
@@ -36,7 +36,7 @@ class NotificationBloc
       String id, Emitter<NotificationState> emit) async {
     final notificationId = state.scheduledIds[id];
     if (notificationId != null) {
-      await repository.cancelScheduledNotificaion(notificationId);
+      await repository.cancelScheduledNotification(notificationId);
       final newState = Map<String, int>.from(state.scheduledIds);
       newState.remove(id);
       emit(NotificationState(scheduledIds: newState));
@@ -47,7 +47,7 @@ class NotificationBloc
       DateTime deliveryTime,
       String title,
       String content,
-      //String id,
+      String id,
       String? payload,
       Emitter<NotificationState> emit) async {
     var random = Random();

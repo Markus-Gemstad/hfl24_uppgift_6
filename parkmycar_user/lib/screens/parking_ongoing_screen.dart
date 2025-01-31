@@ -144,6 +144,7 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
 
             // Create a new notification for the extended parking
             context.read<NotificationBloc>().add(ScheduleNotification(
+                id: ongoingParking.id,
                 title: "Din parkeringstid går snart ut!",
                 content:
                     "Parkeringstiden på ${ongoingParking.parkingSpace!.streetAddress} går ut om 40 sekunder.",
