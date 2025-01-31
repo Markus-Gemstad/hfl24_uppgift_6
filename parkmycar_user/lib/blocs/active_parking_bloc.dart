@@ -1,13 +1,18 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:parkmycar_shared/parkmycar_shared.dart';
-// import 'package:parkmycar_user/blocs/notification_bloc.dart';
 
 part 'active_parking_state.dart';
 part 'active_parking_event.dart';
 
 class ActiveParkingBloc extends Bloc<ActiveParkingEvent, ActiveParkingState> {
-  ActiveParkingBloc() : super(ActiveParkingState.nonActive()) {
+  final ParkingFirebaseRepository parkingRepository;
+
+  ActiveParkingBloc({required this.parkingRepository})
+      : super(ActiveParkingState.nonActive()) {
+    on<ActiveParkingSubscriptionRequested>((event, emit) async =>
+        await _onActiveParkingSubscriptionRequested(event, emit));
     on<ActiveParkingInit>(
         (event, emit) async => await _initParking(event, emit));
     on<ActiveParkingExtend>(
@@ -17,11 +22,22 @@ class ActiveParkingBloc extends Bloc<ActiveParkingEvent, ActiveParkingState> {
     on<ActiveParkingEnd>((event, emit) async => await _endParking(event, emit));
   }
 
+  Future<void> _onActiveParkingSubscriptionRequested(
+      ActiveParkingSubscriptionRequested event,
+      Emitter<ActiveParkingState> emit) async {
+    await emit.onEach(parkingRepository.getOngoingParkingStream(event.personId),
+        onData: (parking) async {
+      if (parking != null) {
+        emit(ActiveParkingState.active(parking));
+      }
+    });
+  }
+
   Future<void> _initParking(
       ActiveParkingInit event, Emitter<ActiveParkingState> emit) async {
     // Find active parking
-    final parking = await ParkingFirebaseRepository()
-        .getFirstOngoingParking(event.personId);
+    final parking =
+        await parkingRepository.getFirstOngoingParking(event.personId);
     if (parking != null) {
       emit(ActiveParkingState.active(parking));
     }
@@ -37,8 +53,7 @@ class ActiveParkingBloc extends Bloc<ActiveParkingEvent, ActiveParkingState> {
       // (see ParkingStartDialog start parking button onPressed method).
       ParkingSpace parkingSpace = event.parking.parkingSpace!;
 
-      Parking? newParking =
-          await ParkingFirebaseRepository().create(event.parking);
+      Parking? newParking = await parkingRepository.create(event.parking);
       debugPrint(
           'Parking created: ${event.parking}, parkingSpace: ${event.parking.parkingSpace}');
       newParking!.parkingSpace = parkingSpace;
@@ -53,8 +68,9 @@ class ActiveParkingBloc extends Bloc<ActiveParkingEvent, ActiveParkingState> {
       ActiveParkingExtend event, Emitter<ActiveParkingState> emit) async {
     emit(ActiveParkingState.extending(event.parking));
     try {
-      event.parking.endTime = event.parking.endTime.add(event.extendDuration);
-      await ParkingFirebaseRepository().update(event.parking);
+      event.parking.endTime = event.parking.endTime = event.newEndTime;
+
+      await parkingRepository.update(event.parking);
       debugPrint(
           'Parking extended: ${event.parking}, parkingSpace: ${event.parking.parkingSpace}');
       emit(ActiveParkingState.active(event.parking));
@@ -68,7 +84,7 @@ class ActiveParkingBloc extends Bloc<ActiveParkingEvent, ActiveParkingState> {
     emit(ActiveParkingState.ending());
     try {
       event.parking.endTime = DateTime.now();
-      await ParkingFirebaseRepository().update(event.parking);
+      await parkingRepository.update(event.parking);
       debugPrint(
           'Parking stopped: ${event.parking}, parkingSpace: ${event.parking.parkingSpace}');
       emit(ActiveParkingState.nonActive());

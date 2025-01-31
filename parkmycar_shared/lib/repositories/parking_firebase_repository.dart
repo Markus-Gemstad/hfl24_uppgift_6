@@ -21,6 +21,20 @@ class ParkingFirebaseRepository extends FirebaseRepository<Parking> {
         .map((event) => event.where((element) => element.isOngoing).toList());
   }
 
+  Stream<Parking?> getOngoingParkingStream(String personId) {
+    Stream<List<Parking>> list = fireStore
+        .collection(collectionId)
+        .where('personId', isEqualTo: personId)
+        .snapshots()
+        .asyncMap((snapshot) => Future.wait([
+              for (var doc in snapshot.docs)
+                _loadParkingSpace(serializer.fromJson(doc.data()))
+            ]))
+        .map((event) => event.where((element) => element.isOngoing).toList());
+
+    return list.map((event) => event.isNotEmpty ? event.first : null);
+  }
+
   Future<Parking?> getFirstOngoingParking(String personId) async {
     // TODO Optimize this to only load the first ongoing parking from the db
     var parkings = await getAll();

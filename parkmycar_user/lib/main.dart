@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:parkmycar_user/blocs/active_parking_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:parkmycar_shared/parkmycar_shared.dart';
 
 import '/screens/main_screen.dart';
 import 'blocs/notification_bloc.dart';
 import 'firebase_options.dart';
+import 'repositories/notifications_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,9 +38,6 @@ Future<void> main() async {
         ),
         BlocProvider(
           create: (BuildContext context) => ThemeCubit(),
-        ),
-        BlocProvider(
-          create: (BuildContext context) => ActiveParkingBloc(),
         ),
         BlocProvider<NotificationBloc>(
             create: (context) => NotificationBloc(notificationsRepository)),

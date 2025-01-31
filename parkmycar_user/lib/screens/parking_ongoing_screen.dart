@@ -126,25 +126,31 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
         // ),
         ElevatedButton(
           onPressed: () {
+            DateTime newEndTime =
+                ongoingParking.endTime.add(Duration(minutes: 1));
+            // If new time is overdue, extend with 1 minute from now
+            if (newEndTime.isBefore(DateTime.now())) {
+              newEndTime = DateTime.now().add(Duration(minutes: 1));
+            }
+
             context
                 .read<ActiveParkingBloc>()
-                .add(ActiveParkingExtend(ongoingParking, Duration(minutes: 1)));
+                .add(ActiveParkingExtend(ongoingParking, newEndTime));
 
-            // Cancel the old notification
-            context
-                .read<NotificationBloc>()
-                .add(CancelNotification(id: ongoingParking.id));
+            // Cancel the old notification - no need, the new will overrite the old
+            // context
+            //     .read<NotificationBloc>()
+            //     .add(CancelNotification(id: ongoingParking.id));
 
             // Create a new notification for the extended parking
             context.read<NotificationBloc>().add(ScheduleNotification(
-                id: ongoingParking.id,
                 title: "Din parkeringstid går snart ut!",
                 content:
-                    "Parkeringstiden på ${ongoingParking.parkingSpace!.streetAddress} går ut om 10 sekunder.",
-                deliveryTime:
-                    ongoingParking.endTime.subtract(Duration(seconds: 10))));
+                    "Parkeringstiden på ${ongoingParking.parkingSpace!.streetAddress} går ut om 40 sekunder.",
+                deliveryTime: newEndTime.subtract(Duration(seconds: 40)),
+                payload: ongoingParking.id));
           },
-          child: Text('Förläng sluttid med 1 minuter'),
+          child: Text('Förläng sluttid med 1 minut'),
         ),
         SizedBox(height: 20.0),
         ElevatedButton(

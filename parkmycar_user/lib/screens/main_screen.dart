@@ -53,7 +53,10 @@ class _MainScreenState extends State<MainScreen> {
         BlocProvider(
           create: (context) {
             String personId = context.read<AuthBloc>().state.person!.id;
-            return ActiveParkingBloc()..add(ActiveParkingInit(personId));
+            return ActiveParkingBloc(
+                parkingRepository: ParkingFirebaseRepository())
+              ..add(ActiveParkingInit(personId))
+              ..add(ActiveParkingSubscriptionRequested(personId));
           },
         ),
       ],

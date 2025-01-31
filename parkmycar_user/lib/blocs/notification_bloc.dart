@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:parkmycar_shared/parkmycar_shared.dart';
+
+import '../repositories/notifications_repository.dart';
 
 part 'notification_state.dart';
 part 'notification_event.dart';
@@ -16,12 +17,14 @@ class NotificationBloc
     on<NotificationEvent>((event, emit) async {
       switch (event) {
         case ScheduleNotification(
-            :final id,
+            //:final id,
             :final title,
             :final content,
-            :final deliveryTime
+            :final deliveryTime,
+            :final payload
           ):
-          await _onScheduleNotification(deliveryTime, title, content, id, emit);
+          await _onScheduleNotification(
+              deliveryTime, title, content, payload, emit);
 
         case CancelNotification(:final id):
           await _onCancelNotification(id, emit);
@@ -40,8 +43,13 @@ class NotificationBloc
     }
   }
 
-  Future<void> _onScheduleNotification(DateTime deliveryTime, String title,
-      String content, String id, Emitter<NotificationState> emit) async {
+  Future<void> _onScheduleNotification(
+      DateTime deliveryTime,
+      String title,
+      String content,
+      //String id,
+      String? payload,
+      Emitter<NotificationState> emit) async {
     var random = Random();
 
     int notificationId = random.nextInt((pow(2, 31).toInt() - 1));
@@ -50,7 +58,8 @@ class NotificationBloc
         id: notificationId,
         title: title,
         content: content,
-        deliveryTime: deliveryTime);
+        deliveryTime: deliveryTime,
+        payload: payload);
 
     final newState = Map<String, int>.from(state.scheduledIds);
     newState[id] = notificationId;

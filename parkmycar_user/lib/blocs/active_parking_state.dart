@@ -9,7 +9,7 @@ enum ParkingStatus {
   error,
 }
 
-class ActiveParkingState {
+class ActiveParkingState extends Equatable {
   final ParkingStatus status;
   final Parking? parking;
   final String message;
@@ -36,4 +36,7 @@ class ActiveParkingState {
 
   const ActiveParkingState.error(String message)
       : this._(status: ParkingStatus.error, message: message, parking: null);
+
+  @override
+  List<Object?> get props => [status, parking, message];
 }

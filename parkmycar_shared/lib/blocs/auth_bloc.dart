@@ -23,7 +23,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (event, emit) async => await _onLogout(event, emit));
   }
 
-  Future<void> _onUserSubscriptionRequested(event, emit) async {
+  Future<void> _onUserSubscriptionRequested(
+      AuthUserSubscriptionRequested event, Emitter<AuthState> emit) async {
     await emit.onEach(authRepository.userStream, onData: (authUser) async {
       if (authUser == null) {
         emit(const AuthState.unauthenticated());

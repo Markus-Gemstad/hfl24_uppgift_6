@@ -1,10 +1,73 @@
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:parkmycar_shared/parkmycar_shared.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
+
+import '../firebase_options.dart';
+
+const String extendParkingAction = 'extend_parking';
+
+// Called when a user clicka a notification action
+@pragma('vm:entry-point')
+void notificationTapBackground(
+    NotificationResponse notificationResponse) async {
+  if (notificationResponse.actionId == extendParkingAction) {
+    await extendParking(notificationResponse.payload!);
+  }
+
+  // debugPrint('notificationTapBackground(): \n'
+  //     'id: ${notificationResponse.id}\n'
+  //     'actionId: ${notificationResponse.actionId}\n'
+  //     'input: ${notificationResponse.input}\n'
+  //     'notificationResponseType: ${notificationResponse.notificationResponseType}\n'
+  //     'payload: ${notificationResponse.payload}');
+
+  if (notificationResponse.input?.isNotEmpty ?? false) {
+    // ignore: avoid_print
+    print('notification action tapped with id: ${notificationResponse.id}');
+  }
+}
+
+Future<void> extendParking(String parkingId) async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  ParkingFirebaseRepository parkingRepository = ParkingFirebaseRepository();
+  Parking? parking = await parkingRepository.getById(parkingId);
+  if (parking != null) {
+    DateTime newEndTime = parking.endTime.add(const Duration(minutes: 1));
+    // If new time is overdue, extend with 1 minute from now
+    if (newEndTime.isBefore(DateTime.now())) {
+      newEndTime = DateTime.now().add(const Duration(minutes: 1));
+    }
+    parking.endTime = newEndTime;
+    await parkingRepository.update(parking);
+
+    debugPrint('ParkingId: $parkingId, newEndTime: $newEndTime');
+
+    // Load the parking space for the notification text (street address)
+    parking.parkingSpace =
+        await ParkingSpaceFirebaseRepository().getById(parking.parkingSpaceId);
+
+    NotificationsRepository notificationsRepository =
+        await NotificationsRepository.initialize();
+
+    // Create a new notification for the extended parking
+    notificationsRepository.scheduleNotification(
+        title: "Din parkeringstid går snart ut!",
+        content:
+            "Parkeringstiden på ${parking.parkingSpace!.streetAddress} går ut om 40 sekunder.",
+        deliveryTime: newEndTime.subtract(const Duration(seconds: 40)),
+        id: 0,
+        payload: parking.id);
+  }
+}
 
 Future<void> _configureLocalTimeZone() async {
   if (kIsWeb || Platform.isLinux) {
@@ -21,11 +84,33 @@ Future<void> _configureLocalTimeZone() async {
 Future<FlutterLocalNotificationsPlugin> initializeNotifications() async {
   var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   var initializationSettingsAndroid = const AndroidInitializationSettings(
-      '@mipmap/ic_launcher'); // TODO: Change this to an icon of your choice if you want to fix it.
-  var initializationSettingsIOS = const DarwinInitializationSettings();
+      '@mipmap/ic_launcher'); // Change this to an icon of your choice if you want to fix it.
+  var initializationSettingsIOS = DarwinInitializationSettings(
+    notificationCategories: [
+      DarwinNotificationCategory(
+        'parkmycar_notify',
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.plain(
+              extendParkingAction, 'Förläng sluttid med 1 minut'),
+        ],
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+        },
+      )
+    ],
+  );
   var initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse:
+        (NotificationResponse notificationResponse) async {
+      // Called when the user taps on a notification
+      debugPrint('onDidReceiveNotificationResponse');
+    },
+    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+  );
   return flutterLocalNotificationsPlugin;
 }
 
@@ -61,7 +146,8 @@ class NotificationsRepository {
       {required String title,
       required String content,
       required DateTime deliveryTime,
-      required int id}) async {
+      required int id,
+      String? payload}) async {
     await requestPermissions();
 
     String channelId = const Uuid()
@@ -75,23 +161,26 @@ class NotificationsRepository {
         channelDescription: channelDescription,
         importance: Importance.max,
         priority: Priority.high,
-        ticker: 'ticker');
-    var iOSPlatformChannelSpecifics = const DarwinNotificationDetails();
+        ticker: 'ticker',
+        actions: [
+          const AndroidNotificationAction(
+              extendParkingAction, 'Förläng parkering med 1 minut'),
+        ]);
+    var iOSPlatformChannelSpecifics =
+        const DarwinNotificationDetails(categoryIdentifier: 'parkmycar_notify');
     var platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics,
         iOS: iOSPlatformChannelSpecifics);
 
-    // from docs, not sure about specifics
+    // TZDateTime required to take daylight savings into considerations.
+    tz.TZDateTime tzDeliveryTime = tz.TZDateTime.from(deliveryTime, tz.local);
+
+    debugPrint('scheduleNotification() payload: $payload, '
+        'tzDeliveryTime: $tzDeliveryTime');
 
     return await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        content,
-        tz.TZDateTime.from(
-            deliveryTime,
-            tz
-                .local), // TZDateTime required to take daylight savings into considerations.
-        platformChannelSpecifics,
+        0, title, content, tzDeliveryTime, platformChannelSpecifics,
+        payload: payload,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime);
