@@ -5,6 +5,7 @@ import 'package:parkmycar_user/blocs/notification_bloc.dart';
 
 import '../blocs/active_parking_bloc.dart';
 import '../blocs/parking_spaces_bloc.dart';
+import '../globals.dart';
 import 'parking_ongoing_screen.dart';
 import 'parking_start_dialog.dart';
 
@@ -132,8 +133,8 @@ class ParkingScreen extends StatelessWidget {
           id: parking.id,
           title: "Din parkeringstid går snart ut!",
           content:
-              "Parkeringstiden på ${parking.parkingSpace!.streetAddress} går ut om 40 sekunder.",
-          deliveryTime: parking.endTime.subtract(Duration(seconds: 40)),
+              "Parkeringstiden på ${parking.parkingSpace!.streetAddress} går snart ut.",
+          deliveryTime: parking.endTime.subtract(notifyParkingEndTime),
           payload: parking.id));
     }
   }

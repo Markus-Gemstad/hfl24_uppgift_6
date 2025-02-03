@@ -83,8 +83,10 @@ class ActiveParkingBloc extends Bloc<ActiveParkingEvent, ActiveParkingState> {
   Future<void> _endParking(ActiveParkingEnd event, emit) async {
     emit(ActiveParkingState.ending());
     try {
-      event.parking.endTime = DateTime.now();
-      await parkingRepository.update(event.parking);
+      if (event.newEndTime != null) {
+        event.parking.endTime = event.newEndTime!;
+        await parkingRepository.update(event.parking);
+      }
       debugPrint(
           'Parking stopped: ${event.parking}, parkingSpace: ${event.parking.parkingSpace}');
       emit(ActiveParkingState.nonActive());

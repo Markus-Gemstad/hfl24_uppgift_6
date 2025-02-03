@@ -48,6 +48,13 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
     final activeParkingState = context.watch<ActiveParkingBloc>().state;
     Parking? ongoingParking = activeParkingState.parking;
 
+    // If the parking is ongoing and the end time has passed, remove
+    // the ongoing parking from the active parking state
+    if (ongoingParking != null &&
+        ongoingParking.endTime.isBefore(DateTime.now())) {
+      context.read<ActiveParkingBloc>().add(ActiveParkingEnd(ongoingParking));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pågående parkering'),
@@ -102,14 +109,16 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
         Text('Förfluten tid: ${ongoingParking.elapsedTimeToString()}',
             style: TextStyle(
                 fontSize: 20,
-                color: (ongoingParking.isOverdue) ? Colors.red : Colors.black)),
+                color: (ongoingParking.isSoonOverdue)
+                    ? Colors.red
+                    : Colors.black)),
         Text('Kostnad: ${ongoingParking.elapsedCostToString()}',
             style: TextStyle(fontSize: 20)),
         SizedBox(height: 10.0),
         Visibility(
-            visible: ongoingParking.isOverdue,
+            visible: ongoingParking.isSoonOverdue,
             child: Text(
-              'OBS! Din parkeringstid har gått ut!',
+              'OBS! Din parkeringstid går snart ut!',
               style: TextStyle(fontSize: 16, color: Colors.red),
             )),
         SizedBox(height: 20.0),
@@ -126,12 +135,11 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
         // ),
         ElevatedButton(
           onPressed: () {
-            DateTime newEndTime =
-                ongoingParking.endTime.add(Duration(minutes: 1));
+            DateTime newEndTime = ongoingParking.endTime.add(extendEndTimeBy);
             // If new time is overdue, extend with 1 minute from now
-            if (newEndTime.isBefore(DateTime.now())) {
-              newEndTime = DateTime.now().add(Duration(minutes: 1));
-            }
+            // if (newEndTime.isBefore(DateTime.now())) {
+            //   newEndTime = DateTime.now().add(Duration(minutes: 1));
+            // }
 
             context
                 .read<ActiveParkingBloc>()
@@ -147,8 +155,8 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
                 id: ongoingParking.id,
                 title: "Din parkeringstid går snart ut!",
                 content:
-                    "Parkeringstiden på ${ongoingParking.parkingSpace!.streetAddress} går ut om 40 sekunder.",
-                deliveryTime: newEndTime.subtract(Duration(seconds: 40)),
+                    "Parkeringstiden på ${ongoingParking.parkingSpace!.streetAddress} går snart ut.",
+                deliveryTime: newEndTime.subtract(notifyParkingEndTime),
                 payload: ongoingParking.id));
           },
           child: Text('Förläng sluttid med 1 minut'),
@@ -156,9 +164,8 @@ class _ParkingOngoingScreenState extends State<ParkingOngoingScreen> {
         SizedBox(height: 20.0),
         ElevatedButton(
           onPressed: () {
-            context
-                .read<ActiveParkingBloc>()
-                .add(ActiveParkingEnd(ongoingParking));
+            context.read<ActiveParkingBloc>().add(
+                ActiveParkingEnd(ongoingParking, newEndTime: DateTime.now()));
 
             context
                 .read<NotificationBloc>()

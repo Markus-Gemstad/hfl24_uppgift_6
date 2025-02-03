@@ -44,12 +44,14 @@ En parkeringsapp som lagrar sitt data i Firebase Cloud Storage med tillhörande 
 ### Nyheter
 
 - Notifikation/påminnelse strax innan parkeringstid går ut (iOS och Android)
+- Åtgärdsknapp (action) för att förlänga parkeringstiden i notifikationen
 - Knapp för att förlänga parkeringstid på skärmen pågående parkering
 - Rödmarkering på skärmen pågående parkering när en parkeringstid har gått ut
 
 ### Funktioner för VG
 
-- Notifkation fungerar på både iOS och Android
+- Notifikation fungerar på både iOS och Android
+- Åtgärdsknapp (action) för att förlänga parkeringstiden i notifikationen
 
 ## Uppgift 5
 ### Nyheter

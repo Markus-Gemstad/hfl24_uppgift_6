@@ -15,7 +15,7 @@ class ParkingStartDialog extends StatefulWidget {
 class _ParkingStartDialogState extends State<ParkingStartDialog> {
   late ParkingSpace parkingSpace;
   late String _selectedVehicleId;
-  DateTime _selectedEndTime = DateTime.now().add(Duration(minutes: 1));
+  DateTime _selectedEndTime = DateTime.now().add(suggestedParkingEndTime);
 
   Future<List<Vehicle>> getAllVehicles() async {
     final repo = VehicleFirebaseRepository();

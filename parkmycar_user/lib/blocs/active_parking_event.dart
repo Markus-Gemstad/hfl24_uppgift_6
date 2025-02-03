@@ -26,5 +26,6 @@ final class ActiveParkingExtend extends ActiveParkingEvent {
 
 final class ActiveParkingEnd extends ActiveParkingEvent {
   final Parking parking;
-  ActiveParkingEnd(this.parking);
+  final DateTime? newEndTime;
+  ActiveParkingEnd(this.parking, {this.newEndTime});
 }

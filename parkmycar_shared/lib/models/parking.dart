@@ -5,6 +5,8 @@ import 'identifiable.dart';
 import 'parking_space.dart';
 import 'serializer.dart';
 
+const Duration soonExpiredDuration = Duration(seconds: 20);
+
 class Parking extends Identifiable {
   String personId;
   String vehicleId;
@@ -84,9 +86,9 @@ class Parking extends Identifiable {
     return (now.isAfter(startTime) && now.isBefore(endTime));
   }
 
-  bool get isOverdue {
+  bool get isSoonOverdue {
     var now = DateTime.now();
-    return (now.isAfter(endTime));
+    return (now.isAfter(endTime.subtract(soonExpiredDuration)));
   }
 
   Parking(this.personId, this.vehicleId, this.parkingSpaceId, this.startTime,
